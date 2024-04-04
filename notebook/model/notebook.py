@@ -1,31 +1,42 @@
 from datetime import datetime
-from dataclasses import dataclass
+from typing import List, Dict
+from dataclasses import dataclass, field
 
 @dataclass
 class Note:
-    HIGH: str = "HIGH"
-    MEDIUM: str = "MEDIUM"
-    LOW: str = "LOW"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
 
-    def __init__(self, code: int, title: str, text: str, importance: str):
-        pass
+    code: int
+    title: str
+    text: str
+    importance: str
+    creation_date: datetime = field(default_factory=datetime.now)
+    tags: List[str] = field(default_factory=list)
 
     def add_tag(self, tag: str):
-        pass
+        if tag not in self.tags:
+            self.tags.append(tag)
 
     def __str__(self) -> str:
-        pass
-    
+        return f"Code: {self.code}\nCreation date: {self.creation_date}\n{self.title}: {self.text}"
+
 class Notebook:
     def __init__(self):
-        pass
-    
-    def add_note(self, title: str, text: str, importance: str):
-        pass
-    
-    def importan_notes(self) -> list[Note]:
-        pass
-    
-    def tag_notes_count(self) -> dict[str, int]:
-        pass
-    
+        self.notes: Dict[int, Note] = {}
+
+    def add_note(self, title: str, text: str, importance: str) -> int:
+        code = len(self.notes) + 1
+        self.notes[code] = Note(code, title, text, importance)
+        return code
+
+    def important_notes(self) -> List[Note]:
+        return [note for note in self.notes.values() if note.importance in [Note.HIGH, Note.MEDIUM]]
+
+    def tags_note_count(self) -> Dict[str, int]:
+        tag_count = {}
+        for note in self.notes.values():
+            for tag in note.tags:
+                tag_count[tag] = tag_count.get(tag, 0) + 1
+        return tag_count
